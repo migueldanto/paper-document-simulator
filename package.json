@@ -4,6 +4,10 @@
   "description": "Simulate  pages of document easy",
   "main": "src/index.ts",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/migueldanto/paper-document-simulator.git"
+  },
   "scripts": {
     "build": "npm run transpile-ts2js && npm run prepare-package",
     "transpile-ts2js": " shx rm -rf build/paper-document-simulator/* && tsc",
