@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "ES2020",
+        "target": "ES2017",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "outDir": "./build/paper-document-simulator/",
+        //"noEmit": true,
+        "strict": false, //en algun momento cambiar esto, deberia haber mejor definicion de tipos
+        "esModuleInterop": false,
+        "declaration": true,
+        "skipLibCheck": true,
+        "moduleResolution": "node",
+        "importHelpers": false
+        
+    },
+    "include": [
+        "src/**/*",
+    ],
+    "exclude": [
+        "node_modules",
+        "tasks"
+    ],
+}
