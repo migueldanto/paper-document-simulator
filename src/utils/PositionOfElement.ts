@@ -52,5 +52,5 @@ export interface FragmentOfElement {
     height: number;
     width: number;
     page: number;
-    startCoordinate: number[];
+    startCoordinate: [x:number,y:number];
 }

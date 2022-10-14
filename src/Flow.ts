@@ -1,9 +1,9 @@
 import Pages from "./Pages"
 import ElementInPage, { CounterSize } from "./utils/ElementInPage"
-import { NOT_CALCULATED_VALUE_YET } from "./utils/PositionOfElement"
 import PositionOfFlow, { FragmentOfFlow } from "./utils/PositionOfFlow"
 import { factorCm2Px } from "./utils/Sizes"
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, debounce, interval } from "rxjs"
+import { CoordinateInPixels } from "./utils/Types"
 
 export default class Flow {
     private _id: string
@@ -27,7 +27,7 @@ export default class Flow {
         this.widthFractions = flowOptions.widthFractions
         this.gap = flowOptions.gap
         this.autoDisributeContent = flowOptions.autoDisributeContent
-        this._position = new PositionOfFlow()
+        this._position = new PositionOfFlow(this._id)
 
     }
 
@@ -59,13 +59,13 @@ export default class Flow {
     public addToPagesInstance(pages: Pages) {
         this._pagesInstance = pages
         const size = this._pagesInstance.flows.length
-        this._pagesInstance.flows.push(this)
+        this._pagesInstance._addFlowAndSuscribe(this)
         this._position.positionInPage = size
 
     }
 
     public addElementInPosition(element: ElementInPage, position?: number) {
-        element.positionBehaviorSubject.asObservable().subscribe(position => {
+        element.positionBehaviorSubject.asObservable().pipe(debounce(()=>interval(100))).subscribe(position => {
             this.positionate()
         })
         if (position === undefined || position > this._elements.length) {
@@ -77,7 +77,24 @@ export default class Flow {
         element.position.positionInFlow = position
     }
 
-    public previusSpaceFragmentsFromPage(): LastSpaceUsed {
+    public clearElements(forcePositionate:boolean = true){
+        this.elements.forEach(element=>{
+            element.dispose()
+        })
+        this._elements = []
+        this._position.clearFragments()
+        if(forcePositionate){
+            this.positionate()
+            
+        }
+        
+    }
+
+    /**
+     * Retorna el espacio usado por los anteriores flujos sin contar el flujo actual
+     * @returns {LastSpaceUsed} Ultimo espacio usado por los anteriores flujos
+     */
+    public spaceUsedByPreviusFlowsInPage(): LastSpaceUsed {
         let counter = { "0": { height: 0 } }
         const indexThisFlow = this._pagesInstance.flows.findIndex(flow => flow.id === this.id)
         this._pagesInstance.flows.filter((flow, idx) => idx < indexThisFlow)
@@ -93,21 +110,40 @@ export default class Flow {
             })
 
         //last page, last column 
-        const lastPage = Object.keys(counter).sort((a, b) => a > b ? -1 : 1)[0];
-        
+        const lastPage = Object.keys(counter).sort().reverse()[0];
+        //console.log(counter)
         return { last: { page: lastPage }, counter: counter }
+    }
+
+    private checkAvailabilityToFlow():{
+        previusFlowsSpace: LastSpaceUsed,
+        spaceReservedByOthers:number,
+        availableHeightToFlow:number
+    }{
+        const previusFlowsSpace = this.spaceUsedByPreviusFlowsInPage();
+        const spaceReservedByOthers = previusFlowsSpace.counter[previusFlowsSpace.last.page].height 
+        const availableHeightInPage = this.pagesInstance.sizePageinPixels[1] - (this.pagesInstance.pageMargins[2] * factorCm2Px)
+        const availableHeightToFlow = availableHeightInPage - spaceReservedByOthers;
+        return {
+            previusFlowsSpace,
+            spaceReservedByOthers,
+            availableHeightToFlow
+        }
     }
 
 
     public positionate() {
         console.log("posicionando en Flow", this.id)
-        const previusSpace = this.previusSpaceFragmentsFromPage();
+        const {previusFlowsSpace,spaceReservedByOthers} = this.checkAvailabilityToFlow()
         
-        const spaceReservedByOthers = previusSpace.counter[previusSpace.last.page].height 
         
-        this._position.startCoordinate[0] = this._pagesInstance.pageMargins[3] * factorCm2Px
+        const startCoordinate:[number,number] = [
+            this._pagesInstance.pageMargins[3] * factorCm2Px, 
+            (this._pagesInstance.pageMargins[0] * factorCm2Px) + spaceReservedByOthers
+        ]
+        this._position.startCoordinate = startCoordinate
         //this.position.startCoordinate[1] = this.pagesInstance.sizePageInPixelsMinusMargins[1] - spaceReservedByOthers
-        this._position.startCoordinate[1] = (this._pagesInstance.pageMargins[0] * factorCm2Px) + spaceReservedByOthers
+        
         //const availableHeightToFlow = this.pagesInstance.sizePageInPixelsMinusMargins[1]
         
 
@@ -146,7 +182,7 @@ export default class Flow {
 
         this._position.fragments = []
         let contadorHeight: { [key: string]: number } = {}
-        contadorHeight[previusSpace.last.page] = this._position.startCoordinate[1]
+        contadorHeight[previusFlowsSpace.last.page] = this._position.startCoordinate[1]
 
         Object.entries(maximumHeightByPage).forEach(([keyPage, value]) => {
             
@@ -164,7 +200,8 @@ export default class Flow {
 
             }
 
-            this._position.fragments.push(fragment)
+            
+            this._position.addFragment(fragment)
         })
 
         this.positionBehaviorSubject.next(this.position)
@@ -192,7 +229,7 @@ export default class Flow {
 
     }
 
-    public getStartCoordinateByColumnInPage(idxPage:number,idxColumn:number){
+    public getStartCoordinateByColumnInPage(idxPage:number,idxColumn:number):CoordinateInPixels{
         const previusColumns =[...this.widthsColumnsInPixels].slice(0,idxColumn)
         let positionX = previusColumns.reduce((acum,current)=>{
             acum = acum + current

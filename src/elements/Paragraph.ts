@@ -1,6 +1,9 @@
-    import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
-import { FragmentOfElement } from "../utils/PositionOfElement";
+import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
+import { ElementOptionsToRender } from "../utils/PagesParametersConstructor";
+import { factorCm2Px } from "../utils/Sizes";
+
 import TextInLines from "../utils/TextInLines";
+import { CoordinateInPixels } from "../utils/Types";
 
 export default class Paragraph extends ElementInPage {
 
@@ -9,8 +12,8 @@ export default class Paragraph extends ElementInPage {
     private _text: string
     private _fontFamily: string
     private _fontSize: string
-    private _spaceLineAfterParagraph :number
-    private _spaceLineBeforeParagraph :number
+    private _spaceLineAfterParagraph: number
+    private _spaceLineBeforeParagraph: number
 
 
     private _canvasToMeasure: HTMLCanvasElement
@@ -54,26 +57,25 @@ export default class Paragraph extends ElementInPage {
         this.positionate()
     }
 
-    public getLineHeightInPixels():number {
+    public getLineHeightInPixels(): number {
         const usePtUnits = this._fontSize.includes("pt")
         const fontSize = parseFloat(this._fontSize)
-        return usePtUnits 
-            ? (fontSize * (96 / 72)) * this.lineHeight 
+        return usePtUnits
+            ? (fontSize * (96 / 72)) * this.lineHeight
             : fontSize * this.lineHeight
     }
 
-    public getSpaceLineAfterParagraphInPixels():number{
+    public getSpaceLineAfterParagraphInPixels(): number {
         const usePtUnits = this._fontSize.includes("pt")
         const fontSize = parseFloat(this._fontSize)
-        return usePtUnits 
-            ? (fontSize * (96 / 72)) * this._spaceLineAfterParagraph 
+        return usePtUnits
+            ? (fontSize * (96 / 72)) * this._spaceLineAfterParagraph
             : fontSize * this._spaceLineAfterParagraph
     }
 
     public positionate() {
         console.log("posicionando en Parrafo", this.id)
         //Aqui es general
-
 
         const {
             previusElementsSpace,
@@ -86,49 +88,97 @@ export default class Paragraph extends ElementInPage {
 
         //aca ya esparticular
         let textLinesInitial = new TextInLines(this._text, `${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
-
         let lines = textLinesInitial.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
         let grossHeight = (lines.length * this.getLineHeightInPixels()) + this.getSpaceLineAfterParagraphInPixels()
 
         if (grossHeight > availableHeightToElement) {
-            //cortar las lineas y hacer mas de un fragmento
-            let lineasQueCaben = availableHeightToElement / this.getLineHeightInPixels()
-            const lineasACortar = Math.floor(lineasQueCaben)
-            const linesCortadas = lines.slice(0, lineasACortar)
-            const heightLinesCortadas = linesCortadas.length * this.getLineHeightInPixels()
+            //como no cabe esto se repetira hasta que se termine de distribuir el contenido
+            this.position.fragments = []
+            this.linesInFragments = []
 
-            const fragment = this.createFragment(previusElementsSpace,heightLinesCortadas,startCoordinateOfElement)
+            let missingText = this._text
+            let elementSpaceNext = {...previusElementsSpace}
+            
+            while(missingText.length>0){
+                console.log("while..",this.id)
+                const nextParams = this.tryDistributeNextSpace(missingText,elementSpaceNext)
+                missingText = nextParams.missingText
+                elementSpaceNext = {...nextParams.nextElementSpace}
+            }
+            
+
+        } else {
+            //como si cabe esto solo pasa una vez
+            const fragment = this.createFragment(previusElementsSpace, grossHeight, startCoordinateOfElement)
             this.position.fragments = [fragment]
-            this.linesInFragments = [{ lines: linesCortadas, fragmentIdx: 0 }]
-            
-            //hacer los parrafos adicionales que se necesiten en otras columnas paginas
-            const linesRestantes = lines.slice(lineasACortar).flat().join(" ")
-            let textLinesSiguiente = new TextInLines(linesRestantes, `${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
-
-            const previusElementsSpaceNext : LastSpaceUsed = ElementInPage.newColumnToSpaceUsed(previusElementsSpace,this.flow)
-            const startCoordinateOfColumnInPage = this.flow.getStartCoordinateByColumnInPage(
-                parseInt(previusElementsSpaceNext.last.page),
-                parseInt(previusElementsSpaceNext.last.column)
-            );
-            const spaceReservedByOthers = previusElementsSpaceNext.counter[previusElementsSpaceNext.last.page][previusElementsSpaceNext.last.column].height
-            let startCoordinateOfFragment = [
-                startCoordinateOfColumnInPage[0],
-                startCoordinateOfColumnInPage[1] + spaceReservedByOthers
-            ]
-            const linesSigueinte = textLinesSiguiente.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpaceNext.last.column ])
-            const heightNextParrafo = (linesSigueinte.length * this.getLineHeightInPixels()) + this.getSpaceLineAfterParagraphInPixels()
-            const fragment2 = this.createFragment(previusElementsSpaceNext,heightNextParrafo,startCoordinateOfFragment)
-            this.position.fragments.push(fragment2)
-            this.linesInFragments.push({ lines: linesSigueinte, fragmentIdx: 1 })
-            //ahorita solio subi la columna pero deberria, eso esta incorrecto
-            
-            this.sendPositionateEventToSuscribers()
-            return
+            this.linesInFragments = [{ lines: lines, fragmentIdx: 0 }]
         }
-        const fragment = this.createFragment(previusElementsSpace, grossHeight, startCoordinateOfElement)
-        this.position.fragments = [fragment]
-        this.linesInFragments = [{ lines: lines, fragmentIdx: 0 }]
+
+
         this.sendPositionateEventToSuscribers()
+    }
+
+    private tryDistributeNextSpace(
+        texto: string, 
+        previusElementsSpace:LastSpaceUsed
+    ):{
+        missingText:string,
+        nextElementSpace:LastSpaceUsed
+
+    } {
+        //creando las lineas para medirlas y ver donde caben
+        const textLines = new TextInLines(texto, `${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
+        let lines = textLines.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
+
+        //calbulando coordenadas iniciales de donde empezar a medir
+        const spaceReservedByOthers = previusElementsSpace.counter[previusElementsSpace.last.page][previusElementsSpace.last.column].height
+        const startCoordinateOfFlowInPage = this.flow.position.getStartCoordinateInPage(previusElementsSpace.last.page)
+        
+        const availableHeightToFlow = ( 
+            this.flow.pagesInstance.sizePageinPixels[1] - (this.flow.pagesInstance.pageMargins[2] * factorCm2Px)
+        ) - startCoordinateOfFlowInPage[1]
+        const availableHeightToElement = availableHeightToFlow - spaceReservedByOthers
+        const startCoordinateOfColumnInPage = this.flow.getStartCoordinateByColumnInPage(
+            parseInt(previusElementsSpace.last.page),
+            parseInt(previusElementsSpace.last.column)
+        );
+        const startHeight = spaceReservedByOthers === 0 ? startCoordinateOfFlowInPage[1] : startCoordinateOfColumnInPage[1] + spaceReservedByOthers
+        let startCoordinateOfFragment: CoordinateInPixels = [
+            startCoordinateOfColumnInPage[0],
+            startHeight
+        ]
+
+        //verificando las lineas que caben 
+        const lineasQueCabenEnHeightDisponible = availableHeightToElement / this.getLineHeightInPixels()
+        const numeroDeLineasAPosicionar = Math.floor(lineasQueCabenEnHeightDisponible)
+        const lineasAPosicionar = lines.slice(0, numeroDeLineasAPosicionar)
+        const heightLineasAPosicionar = lineasAPosicionar.length * this.getLineHeightInPixels()
+        const heightLineasAPosicionarReal = (heightLineasAPosicionar + this.getSpaceLineAfterParagraphInPixels() <=availableHeightToElement)
+            ? heightLineasAPosicionar + this.getSpaceLineAfterParagraphInPixels()
+            : heightLineasAPosicionar;
+
+        const fragment = this.createFragment(previusElementsSpace, heightLineasAPosicionarReal, startCoordinateOfFragment)
+        this.position.fragments.push(fragment)
+        const nextFragmentIdx = this.linesInFragments.length
+        this.linesInFragments.push({ lines: lineasAPosicionar, fragmentIdx: nextFragmentIdx })
+
+        const cadenaRestante = lines.slice(numeroDeLineasAPosicionar).flat().join(" ").trim()
+        const nextElementSpace = {...ElementInPage.newColumnToSpaceUsed(previusElementsSpace, this.flow)}
+        return {
+            missingText:cadenaRestante,
+            nextElementSpace
+        }
+    }
+
+    public getOptionsToRenderByFragment(fragment_idx: number): ElementOptionsToRender {
+        return {
+            content: this.linesInFragments[fragment_idx].lines,
+            params: {
+                lineHeight: this.lineHeight,
+                fontFamily: this.fontFamily,
+                fontSize: this._fontSize
+            }
+        }
     }
 }
 

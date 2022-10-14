@@ -1,13 +1,15 @@
 import Flow from "../Flow"
 import PositionOfElement, { FragmentOfElement } from "./PositionOfElement"
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, debounce, interval, Subscription } from "rxjs"
 import { factorCm2Px } from "./Sizes"
+import { CoordinateInPixels } from "./Types"
 
 export default class ElementInPage {
     private _id: string
     private _type: string
     private _position: PositionOfElement
     private _flow: Flow;
+    private _subscriptions: {[key:string]:Subscription} = {}
 
     //listeners
     public positionBehaviorSubject: BehaviorSubject<PositionOfElement> = new BehaviorSubject<PositionOfElement>(this.position)
@@ -40,7 +42,12 @@ export default class ElementInPage {
     public addToFlow(flow: Flow) {
         this._flow = flow
         this._flow.addElementInPosition(this)
-        this.positionate()
+        //this.positionate()
+       
+        this._subscriptions["flow_startCoordinate"] = this.flow.position.startCoordinateBehaviorSubject
+            .asObservable().pipe(debounce(()=>interval(100))).subscribe(()=>{
+                this.positionate()
+            })
     }
 
     public positionate() {
@@ -101,27 +108,29 @@ export default class ElementInPage {
         spaceReservedByOthers: number;
         availableHeightToElement: number;
         availableHeightToFlow: number;
-        startCoordinateOfColumnInPage: number[];
-        startCoordinateOfElement: number[];
+        startCoordinateOfColumnInPage: CoordinateInPixels;
+        startCoordinateOfElement: CoordinateInPixels;
     } {
         const previusFragmentsSpace = this.spaceUsedByPreviusElementsInFlow()
         const spaceReservedByOthers = previusFragmentsSpace.counter[previusFragmentsSpace.last.page][previusFragmentsSpace.last.column].height
-        const availableHeightToFlow = ( this.flow.pagesInstance.sizePageinPixels[1] - this._flow.pagesInstance.pageMargins[2] * factorCm2Px )
-        - this.flow.position.startCoordinate[1]
+        //console.log(this.flow.position.startCoordinate)
+        const startCoordinateOfFlowInPage = this.flow.position.getStartCoordinateInPage(previusFragmentsSpace.last.page)
+        const availableHeightToFlow = ( 
+                this.flow.pagesInstance.sizePageinPixels[1] - (this._flow.pagesInstance.pageMargins[2] * factorCm2Px)
+            ) - startCoordinateOfFlowInPage[1]
         const availableHeightToElement = availableHeightToFlow - spaceReservedByOthers
 
-        const startCoordinateOfColumnInPage = this.flow.getStartCoordinateByColumnInPage(
+        const startCoordinateOfColumnInPage:CoordinateInPixels = this.flow.getStartCoordinateByColumnInPage(
             parseInt(previusFragmentsSpace.last.page),
             parseInt(previusFragmentsSpace.last.column)
         );
 
-        const startHeight = spaceReservedByOthers === 0 ? this._flow.position.startCoordinate[1] : startCoordinateOfColumnInPage[1] + spaceReservedByOthers
-        let startCoordinateOfElement = [
+        const startHeight = spaceReservedByOthers === 0 ? startCoordinateOfFlowInPage[1] : startCoordinateOfColumnInPage[1] + spaceReservedByOthers
+        let startCoordinateOfElement:CoordinateInPixels = [
             startCoordinateOfColumnInPage[0],
             startHeight
         ]
 
-        console.log(startCoordinateOfColumnInPage,previusFragmentsSpace,"AQUI EN EL CALCULO",this.id)
 
         return {
             previusElementsSpace: previusFragmentsSpace,
@@ -163,7 +172,7 @@ export default class ElementInPage {
         }
     }
 
-    public createFragment(previusFragmentsSpace: LastSpaceUsed, heightFragment:number, startCoordinateOfFragment: number[]): FragmentOfElement {
+    public createFragment(previusFragmentsSpace: LastSpaceUsed, heightFragment:number, startCoordinateOfFragment: [x:number,y:number]): FragmentOfElement {
         const fragment: FragmentOfElement = {
             page: parseInt(previusFragmentsSpace.last.page),
             flowColumn: parseInt(previusFragmentsSpace.last.column),
@@ -177,20 +186,31 @@ export default class ElementInPage {
     }
 
     public static newColumnToSpaceUsed(spaceUsed:LastSpaceUsed,flow:Flow){
-        let nextColumn = parseInt(spaceUsed.last.column) +1
+        const _spaceUsed = {...spaceUsed}
+        let nextColumn = parseInt(_spaceUsed.last.column) +1
         nextColumn = nextColumn % flow.columns   === 0 ? 0 : nextColumn
-        spaceUsed.last.column = nextColumn+""
-        spaceUsed.last.page = nextColumn ===0 ? (parseInt(spaceUsed.last.page) + 1)+"" : spaceUsed.last.page
+        _spaceUsed.last.column = nextColumn+""
+        _spaceUsed.last.page = nextColumn ===0 ? (parseInt(_spaceUsed.last.page) + 1)+"" : _spaceUsed.last.page
 
-        if(!(spaceUsed.last.page in spaceUsed.counter)){
-            spaceUsed.counter[spaceUsed.last.page] = {}
+        if(!(_spaceUsed.last.page in _spaceUsed.counter)){
+            _spaceUsed.counter[_spaceUsed.last.page] = {}
         }
-        if(!(spaceUsed.last.column in spaceUsed.counter[spaceUsed.last.page])){
-            spaceUsed.counter[spaceUsed.last.page][spaceUsed.last.column] = {height:0}
+        if(!(_spaceUsed.last.column in _spaceUsed.counter[_spaceUsed.last.page])){
+            _spaceUsed.counter[_spaceUsed.last.page][_spaceUsed.last.column] = {height:0}
         }
 
-        return spaceUsed
+        return _spaceUsed
 
+    }
+
+    public getOptionsToRenderByFragment(fragment_idx:number):object{
+        return {}
+    }
+
+    public dispose(){
+        this._subscriptions["flow_startCoordinate"].unsubscribe()
+        this.positionBehaviorSubject.complete()
+        
     }
 }
 
