@@ -14,6 +14,9 @@ export default class SizePageInPixels{
             sizes[this._pagesInstance.sizePage][0]* factorCm2Px,
             sizes[this._pagesInstance.sizePage][1]* factorCm2Px,
         ]
+        if(this._pagesInstance.orientation === "h"){
+            return [sizeInPixels[1],sizeInPixels[0]]
+        }
         return sizeInPixels
         
     }

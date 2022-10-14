@@ -15,13 +15,15 @@ export default  class Pages {
     
 
 
-    constructor(options:PageOptions,flows:Array<Flow>){
-        this.sizePage = options.sizePage
-        this.orientation = options.orientation
-        this.pageMargins = options.pageMargins
+    constructor(options:Partial<PageOptions>,flows?:Array<Flow>){
+        this.sizePage = options.sizePage || "carta"
+        this.orientation = options.orientation || "v"
+        this.pageMargins = options.pageMargins || [1,1,1,1]
         this._sizePageInPixels = new SizePageInPixels(this)
-
-        flows.forEach(flow=>flow.addToPagesInstance(this))
+        if(flows){
+            flows.forEach(flow=>flow.addToPagesInstance(this))
+        }
+        
     }
 
     public get sizePageinPixels():Size{

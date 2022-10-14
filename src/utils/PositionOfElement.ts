@@ -36,13 +36,7 @@ export default class PositionOfElement {
             return acum
         },{})
 
-        /*
-        const maximumHeightInPage = Object.keys(height_dictionary).reduce((acum,keyPage)=>{
-            const medidasFlowInPage = Object.entries(height_dictionary[keyPage]).map(entrie=> <number>entrie[1])
-            acum[keyPage] = Math.max( ...medidasFlowInPage)
-            return acum
-        },0)
-        */
+        
 
         return height_dictionary
         

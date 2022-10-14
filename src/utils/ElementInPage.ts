@@ -47,6 +47,10 @@ export default class ElementInPage {
         console.log("No implementado aun")
     }
 
+    public sendPositionateEventToSuscribers():void{
+        this.positionBehaviorSubject.next(this.position)
+    }
+
     /**
      * Retorna el ultimo espacio usado por los fragmentos de los anteriores elementos
      * @returns {LastSpaceUsed} ultimo espacio usado

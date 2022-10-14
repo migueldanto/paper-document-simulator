@@ -1,4 +1,4 @@
-import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
+    import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
 import { FragmentOfElement } from "../utils/PositionOfElement";
 import TextInLines from "../utils/TextInLines";
 
@@ -122,13 +122,13 @@ export default class Paragraph extends ElementInPage {
             this.linesInFragments.push({ lines: linesSigueinte, fragmentIdx: 1 })
             //ahorita solio subi la columna pero deberria, eso esta incorrecto
             
-            this.positionBehaviorSubject.next(this.position)
+            this.sendPositionateEventToSuscribers()
             return
         }
         const fragment = this.createFragment(previusElementsSpace, grossHeight, startCoordinateOfElement)
         this.position.fragments = [fragment]
         this.linesInFragments = [{ lines: lines, fragmentIdx: 0 }]
-        this.positionBehaviorSubject.next(this.position)
+        this.sendPositionateEventToSuscribers()
     }
 }
 
