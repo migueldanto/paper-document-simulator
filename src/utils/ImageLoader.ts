@@ -22,6 +22,10 @@ export default class ImageLoader{
             })
     }
 
+    public get imageBlob():Blob{
+        return this._imageBlob
+    }
+
 }
 
 enum LoadStatus {
