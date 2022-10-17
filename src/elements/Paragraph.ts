@@ -1,5 +1,5 @@
 import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
-import { ElementOptionsToRender } from "../utils/PagesParametersConstructor";
+import { ElementFragmentOptionsToRender } from "../utils/PagesParametersConstructor";
 import { factorCm2Px } from "../utils/Sizes";
 
 import TextInLines from "../utils/TextInLines";
@@ -170,7 +170,7 @@ export default class Paragraph extends ElementInPage {
         }
     }
 
-    public getOptionsToRenderByFragment(fragment_idx: number): ElementOptionsToRender {
+    public getOptionsToRenderByFragment(fragment_idx: number): ElementFragmentOptionsToRender {
         return {
             content: this.linesInFragments[fragment_idx].lines,
             params: {

@@ -1,5 +1,6 @@
 import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
 import { factorCm2Px } from "../utils/Sizes";
+import { CoordinateInPixels } from "../utils/Types";
 
 export default class BlankSpace extends ElementInPage{
     
@@ -12,6 +13,7 @@ export default class BlankSpace extends ElementInPage{
             id:options.id,
             type:"blankSpace"
         })
+        this._height = options.height
     }
 
     public get height():number{
@@ -28,6 +30,7 @@ export default class BlankSpace extends ElementInPage{
     
 
     public positionate(){
+        console.log("posicionando en Espacio Blanco", this.id)
         const {
             previusElementsSpace,
             availableHeightToElement,
@@ -43,7 +46,7 @@ export default class BlankSpace extends ElementInPage{
                 parseInt(previusElementsSpaceNext.last.column)
             );
             const spaceReservedByOthers = previusElementsSpaceNext.counter[previusElementsSpaceNext.last.page][previusElementsSpaceNext.last.column].height
-            let startCoordinateOfElementInNewColumn = [
+            let startCoordinateOfElementInNewColumn:CoordinateInPixels = [
                 startCoordinateOfColumnInPage[0],
                 startCoordinateOfColumnInPage[1] + spaceReservedByOthers
             ]

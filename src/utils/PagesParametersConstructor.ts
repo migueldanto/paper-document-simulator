@@ -86,11 +86,11 @@ export interface ElementFragment{
     indexInElement:number,
     indexInFlow:number,
     type:string,
-    optionsToRender:any
+    optionsToRender:ElementFragmentOptionsToRender
 }
 
 
-export interface ElementOptionsToRender{
-    content:any,
-    params:any
+export interface ElementFragmentOptionsToRender{
+    content?:any,
+    params?:any
 }

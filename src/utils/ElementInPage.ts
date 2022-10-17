@@ -3,6 +3,7 @@ import PositionOfElement, { FragmentOfElement } from "./PositionOfElement"
 import { BehaviorSubject, debounce, interval, Subscription } from "rxjs"
 import { factorCm2Px } from "./Sizes"
 import { CoordinateInPixels } from "./Types"
+import { ElementFragmentOptionsToRender } from "./PagesParametersConstructor"
 
 export default class ElementInPage {
     private _id: string
@@ -203,7 +204,7 @@ export default class ElementInPage {
 
     }
 
-    public getOptionsToRenderByFragment(fragment_idx:number):object{
+    public getOptionsToRenderByFragment(fragment_idx:number):ElementFragmentOptionsToRender{
         return {}
     }
 
