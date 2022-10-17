@@ -12,21 +12,23 @@ export default class Paragraph extends ElementInPage {
     private _text: string
     private _fontFamily: string
     private _fontSize: string
+    private _fontWeight: FontWeight
     private _spaceLineAfterParagraph: number
     private _spaceLineBeforeParagraph: number
 
 
     private _canvasToMeasure: HTMLCanvasElement
 
-    constructor(options: ParagraphOptions) {
+    constructor(options: Partial<ParagraphOptions>) {
         super({
             type: "paragraph",
             id: options.id
         })
-        this._text = options.text
-        this.lineHeight = options.lineHeight
-        this._fontFamily = options.fontFamily
-        this._fontSize = options.fontSize
+        this._text = options.text || ""
+        this.lineHeight = options.lineHeight || 1.2
+        this._fontFamily = options.fontFamily  || "Arial"
+        this._fontSize = options.fontSize || "12pt"
+        this._fontWeight = options.fontWeight || "normal"
         this._canvasToMeasure = document.createElement("canvas")
         this._spaceLineAfterParagraph = options.spaceLineAfterParagraph || .5
         this._spaceLineBeforeParagraph = options.spaceLineBeforeParagraph || 0
@@ -43,6 +45,9 @@ export default class Paragraph extends ElementInPage {
     public get fontSize(): string {
         return this._fontSize
     }
+    public get fontWeight(): FontWeight {
+        return this._fontWeight
+    }
 
     public set text(text: string) {
         this._text = text
@@ -54,6 +59,10 @@ export default class Paragraph extends ElementInPage {
     }
     public set fontSize(fontSize: string) {
         this._fontSize = fontSize
+        this.positionate()
+    }
+    public set fontWeight(fontWeight: FontWeight) {
+        this._fontWeight = fontWeight
         this.positionate()
     }
 
@@ -87,7 +96,7 @@ export default class Paragraph extends ElementInPage {
         } = this.checkAvailabilityToElement()
 
         //aca ya esparticular
-        let textLinesInitial = new TextInLines(this._text, `${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
+        let textLinesInitial = new TextInLines(this._text, `${this._fontWeight} ${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
         let lines = textLinesInitial.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
         let grossHeight = (lines.length * this.getLineHeightInPixels()) + this.getSpaceLineAfterParagraphInPixels()
 
@@ -127,7 +136,7 @@ export default class Paragraph extends ElementInPage {
 
     } {
         //creando las lineas para medirlas y ver donde caben
-        const textLines = new TextInLines(texto, `${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
+        const textLines = new TextInLines(texto, `${this._fontWeight} ${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
         let lines = textLines.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
 
         //calbulando coordenadas iniciales de donde empezar a medir
@@ -191,10 +200,12 @@ export interface ParagraphOptions {
      * Like css , only px or pt units
      */
     fontSize: string;
-    spaceLineAfterParagraph?: number
-    spaceLineBeforeParagraph?: number
+    fontWeight: FontWeight;
+    spaceLineAfterParagraph?: number;
+    spaceLineBeforeParagraph?: number;
 }
 
+export type FontWeight = "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900"
 
 export interface LinesInFragments {
     lines: string[][],
