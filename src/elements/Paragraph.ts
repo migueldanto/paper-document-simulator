@@ -82,6 +82,14 @@ export default class Paragraph extends ElementInPage {
             : fontSize * this._spaceLineAfterParagraph
     }
 
+    public getSpaceLineBeforeParagraphInPixels(): number {
+        const usePtUnits = this._fontSize.includes("pt")
+        const fontSize = parseFloat(this._fontSize)
+        return usePtUnits
+            ? (fontSize * (96 / 72)) * this._spaceLineBeforeParagraph
+            : fontSize * this._spaceLineBeforeParagraph
+    }
+
     public positionate() {
         console.log("posicionando en Parrafo", this.id)
         //Aqui es general
@@ -98,7 +106,9 @@ export default class Paragraph extends ElementInPage {
         //aca ya esparticular
         let textLinesInitial = new TextInLines(this._text, `${this._fontWeight} ${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
         let lines = textLinesInitial.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
-        let grossHeight = (lines.length * this.getLineHeightInPixels()) + this.getSpaceLineAfterParagraphInPixels()
+        let grossHeight =this.getSpaceLineBeforeParagraphInPixels() 
+            + (lines.length * this.getLineHeightInPixels()) 
+            + this.getSpaceLineAfterParagraphInPixels()
 
         if (grossHeight > availableHeightToElement) {
             //como no cabe esto se repetira hasta que se termine de distribuir el contenido
@@ -109,7 +119,7 @@ export default class Paragraph extends ElementInPage {
             let elementSpaceNext = {...previusElementsSpace}
             
             while(missingText.length>0){
-                console.log("while..",this.id)
+                
                 const nextParams = this.tryDistributeNextSpace(missingText,elementSpaceNext)
                 missingText = nextParams.missingText
                 elementSpaceNext = {...nextParams.nextElementSpace}
@@ -120,7 +130,7 @@ export default class Paragraph extends ElementInPage {
             //como si cabe esto solo pasa una vez
             const fragment = this.createFragment(previusElementsSpace, grossHeight, startCoordinateOfElement)
             this.position.fragments = [fragment]
-            this.linesInFragments = [{ lines: lines, fragmentIdx: 0 }]
+            this.linesInFragments = [{ lines: lines, fragmentIdx: 0, espacingBefore: this.getSpaceLineBeforeParagraphInPixels() }]
         }
 
 
@@ -135,6 +145,7 @@ export default class Paragraph extends ElementInPage {
         nextElementSpace:LastSpaceUsed
 
     } {
+        const nextIdxFragment = this.position.fragments.length
         //creando las lineas para medirlas y ver donde caben
         const textLines = new TextInLines(texto, `${this._fontWeight} ${this._fontSize} ${this._fontFamily}`, this._canvasToMeasure)
         let lines = textLines.getLinesInWidth(this.flow.widthsColumnsInPixels[previusElementsSpace.last.column])
@@ -161,15 +172,18 @@ export default class Paragraph extends ElementInPage {
         const lineasQueCabenEnHeightDisponible = availableHeightToElement / this.getLineHeightInPixels()
         const numeroDeLineasAPosicionar = Math.floor(lineasQueCabenEnHeightDisponible)
         const lineasAPosicionar = lines.slice(0, numeroDeLineasAPosicionar)
-        const heightLineasAPosicionar = lineasAPosicionar.length * this.getLineHeightInPixels()
+        const espaciadoInicialAUsar = nextIdxFragment === 0 ? this.getSpaceLineBeforeParagraphInPixels(): 0
+        const heightLineasAPosicionar = espaciadoInicialAUsar + lineasAPosicionar.length * this.getLineHeightInPixels()
+        //se compara con todo y el espaciado de final de parrafo, pensando que abajo haya mas parrafos (elementos)
+        // si no cabe (quiere decir que es el ultimo parrafo de la columna, no necesita llevar espaciado de final)
         const heightLineasAPosicionarReal = (heightLineasAPosicionar + this.getSpaceLineAfterParagraphInPixels() <=availableHeightToElement)
             ? heightLineasAPosicionar + this.getSpaceLineAfterParagraphInPixels()
             : heightLineasAPosicionar;
 
         const fragment = this.createFragment(previusElementsSpace, heightLineasAPosicionarReal, startCoordinateOfFragment)
         this.position.fragments.push(fragment)
-        const nextFragmentIdx = this.linesInFragments.length
-        this.linesInFragments.push({ lines: lineasAPosicionar, fragmentIdx: nextFragmentIdx })
+        //const nextFragmentIdx = this.linesInFragments.length
+        this.linesInFragments.push({ lines: lineasAPosicionar, fragmentIdx: nextIdxFragment, espacingBefore:espaciadoInicialAUsar })
 
         const cadenaRestante = lines.slice(numeroDeLineasAPosicionar).flat().join(" ").trim()
         const nextElementSpace = {...ElementInPage.newColumnToSpaceUsed(previusElementsSpace, this.flow)}
@@ -186,7 +200,8 @@ export default class Paragraph extends ElementInPage {
                 lineHeight: this.lineHeight,
                 fontFamily: this.fontFamily,
                 fontSize: this._fontSize,
-                fontWeight: this.fontWeight
+                fontWeight: this.fontWeight,
+                paddingTop: this.linesInFragments[fragment_idx].espacingBefore+"px"
             }
         }
     }
@@ -209,6 +224,8 @@ export interface ParagraphOptions {
 export type FontWeight = "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900"
 
 export interface LinesInFragments {
-    lines: string[][],
-    fragmentIdx: number
+    lines: string[][];
+    fragmentIdx: number;
+    espacingBefore?: number
+
 }
