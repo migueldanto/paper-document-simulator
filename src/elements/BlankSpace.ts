@@ -1,4 +1,5 @@
 import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
+import logger from "../utils/Logger";
 import { factorCm2Px } from "../utils/Sizes";
 import { CoordinateInPixels } from "../utils/Types";
 
@@ -30,7 +31,8 @@ export default class BlankSpace extends ElementInPage{
     
 
     public positionate(){
-        console.log("posicionando en Espacio Blanco", this.id)
+        logger(this.flow.printPositionates,"posicionando en Espacio Blanco", this.id)
+        
         const {
             previusElementsSpace,
             availableHeightToElement,

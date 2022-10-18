@@ -4,6 +4,7 @@ import { BehaviorSubject, debounce, interval, Subscription } from "rxjs"
 import { factorCm2Px } from "./Sizes"
 import { CoordinateInPixels } from "./Types"
 import { ElementFragmentOptionsToRender } from "./PagesParametersConstructor"
+import logger from "./Logger"
 
 export default class ElementInPage {
     private _id: string
@@ -62,7 +63,7 @@ export default class ElementInPage {
     }
 
     public positionate() {
-        console.log("No implementado aun")
+        logger(this.flow.printPositionates,"No implementado aun")
     }
 
     /**

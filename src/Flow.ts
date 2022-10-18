@@ -4,6 +4,7 @@ import PositionOfFlow, { FragmentOfFlow } from "./utils/PositionOfFlow"
 import { factorCm2Px } from "./utils/Sizes"
 import { BehaviorSubject, debounce, interval } from "rxjs"
 import { CoordinateInPixels } from "./utils/Types"
+import logger from "./utils/Logger"
 
 export default class Flow {
     private _id: string
@@ -15,6 +16,8 @@ export default class Flow {
     public widthFractions: Array<number>
     public gap: number
     public autoDisributeContent: boolean
+
+    public printPositionates:boolean = false
 
     //listeners
     public positionBehaviorSubject: BehaviorSubject<PositionOfFlow> = new BehaviorSubject<PositionOfFlow>(this.position)
@@ -28,6 +31,7 @@ export default class Flow {
         this.gap = flowOptions.gap
         this.autoDisributeContent = flowOptions.autoDisributeContent
         this._position = new PositionOfFlow(this._id)
+        this.printPositionates = flowOptions.printPositionates || false
 
     }
 
@@ -166,7 +170,8 @@ export default class Flow {
 
 
     public positionate() {
-        console.log("posicionando en Flow", this.id)
+        logger(this.printPositionates,"posicionando en Flow", this.id)
+        
         const {previusFlowsSpace,spaceReservedByOthers} = this.checkAvailabilityToFlow()
         
         
@@ -289,6 +294,7 @@ export interface FlowOptions {
     widthFractions: Array<number>;
     gap: number;
     autoDisributeContent: boolean;
+    printPositionates?:boolean;
 }
 
 export interface CounterPage {

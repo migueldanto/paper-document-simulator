@@ -1,4 +1,5 @@
 import ElementInPage, { LastSpaceUsed } from "../utils/ElementInPage";
+import logger from "../utils/Logger";
 import { ElementFragmentOptionsToRender } from "../utils/PagesParametersConstructor";
 import { factorCm2Px } from "../utils/Sizes";
 
@@ -91,7 +92,7 @@ export default class Paragraph extends ElementInPage {
     }
 
     public positionate() {
-        console.log("posicionando en Parrafo", this.id)
+        logger(this.flow.printPositionates,"posicionando en Parrafo", this.id)
         //Aqui es general
 
         const {
