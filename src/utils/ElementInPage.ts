@@ -236,7 +236,10 @@ export default class ElementInPage {
         //remover el elemento en el flow
         const idx =this.position.positionInFlow
         this.flow.elements.splice(idx,1)
-        //remover sus fragmentos del 
+        //cambiar las posiciones de los elementos que deban cambiar
+        this.flow.elements.forEach((element,idx)=>{
+            element.position.positionInFlow = idx
+        })
         if(!silent){
             this.flow.positionate()
         }
