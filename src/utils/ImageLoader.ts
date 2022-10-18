@@ -10,7 +10,7 @@ export default class ImageLoader{
 
     public startLoad():void{
         this.loadStatusBehaviorSubject.next(LoadStatus.Loading)
-        fetch(this._url)
+        fetch(this._url,{cache:"force-cache"})
             .then(response=>response.blob())
             .then(imageBlob=>{
                 this.loadStatusBehaviorSubject.next(LoadStatus.Load)

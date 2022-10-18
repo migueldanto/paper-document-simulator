@@ -20,7 +20,8 @@ export default class ElementInPage {
         this._type = options.type
         this._position = new PositionOfElement()
         if (options.flow) {
-            console.log("Esta definido el flow")
+            
+            this.addToFlow(options.flow)
         }
     }
 
@@ -40,10 +41,15 @@ export default class ElementInPage {
         return this._position
     }
 
-    public addToFlow(flow: Flow) {
+    public addToFlow(flow: Flow,position:number = -1) {
         this._flow = flow
-        this._flow.addElementInPosition(this)
-        //this.positionate()
+        if(position>-1){
+            this._flow.addElementInPosition(this,position)
+        }else{
+            this._flow.addElementInPosition(this)
+        }
+        
+        
        
         this._subscriptions["flow_startCoordinate"] = this.flow.position.startCoordinateBehaviorSubject
             .asObservable().pipe(debounce(()=>interval(100))).subscribe(()=>{
@@ -208,11 +214,23 @@ export default class ElementInPage {
         return {}
     }
 
-    public dispose(){
+    /**
+     * Finaliza el elemento y remueve del flujo actual
+     */
+    public dispose(silent:boolean = false){
+        
         this._subscriptions["flow_startCoordinate"].unsubscribe()
         this.positionBehaviorSubject.complete()
-        
+        //remover el elemento en el flow
+        const idx =this.position.positionInFlow
+        this.flow.elements.splice(idx,1)
+        //remover sus fragmentos del 
+        if(!silent){
+            this.flow.positionate()
+        }
     }
+
+    
 }
 
 export interface ElementInPageOptions {

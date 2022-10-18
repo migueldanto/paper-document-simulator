@@ -55,6 +55,13 @@ export default class Flow {
         })
     }
 
+    public get elementsAsDictionary(): object {
+        return this.elements.reduce((dictionary,element)=>{
+            dictionary[element.id] = element
+            return dictionary
+        },{})
+    }
+
 
     public addToPagesInstance(pages: Pages) {
         this._pagesInstance = pages
@@ -142,9 +149,7 @@ export default class Flow {
             (this._pagesInstance.pageMargins[0] * factorCm2Px) + spaceReservedByOthers
         ]
         this._position.startCoordinate = startCoordinate
-        //this.position.startCoordinate[1] = this.pagesInstance.sizePageInPixelsMinusMargins[1] - spaceReservedByOthers
         
-        //const availableHeightToFlow = this.pagesInstance.sizePageInPixelsMinusMargins[1]
         
 
         const grossHeightInPagesOfElements = this._elements.map(element => {
