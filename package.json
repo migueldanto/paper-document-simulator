@@ -1,6 +1,6 @@
 {
   "name": "paper-document-simulator",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Simulate  pages of document easy",
   "main": "src/index.ts",
   "type": "module",
