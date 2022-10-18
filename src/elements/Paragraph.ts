@@ -185,7 +185,8 @@ export default class Paragraph extends ElementInPage {
             params: {
                 lineHeight: this.lineHeight,
                 fontFamily: this.fontFamily,
-                fontSize: this._fontSize
+                fontSize: this._fontSize,
+                fontWeight: this.fontWeight
             }
         }
     }
