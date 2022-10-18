@@ -28,7 +28,7 @@ export default class SizePageInPixels{
         ]
     }
 
-    public get sizeMarginsInPixels():[top:number,right:number,bottom:number,left:number]{
+    public get marginsInPixels():[top:number,right:number,bottom:number,left:number]{
         return [
             this._pagesInstance.pageMargins[0]* factorCm2Px,
             this._pagesInstance.pageMargins[1]* factorCm2Px,

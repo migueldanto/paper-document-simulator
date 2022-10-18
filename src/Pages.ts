@@ -38,6 +38,10 @@ export default class Pages {
         return this._sizePageInPixels.sizePageInPixelsMinusMargins
     }
 
+    public get  marginsInPixels():[top:number,right:number,bottom:number,left:number] {
+        return this._sizePageInPixels.marginsInPixels
+    }
+
     public _addFlowAndSuscribe(flow: Flow) {
         this.flows.push(flow)
         flow.position.fragmentsBehaviorSubject.asObservable().pipe(debounce(() => interval(100))).subscribe(({ position }) => {
