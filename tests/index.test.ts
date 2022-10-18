@@ -1,4 +1,5 @@
-import {Pages} from "../src/index";
+import {Flow, Pages} from "../src/index";
+import {Paragraph} from "../src/elements"
 import { factorCm2Px } from "../src/utils/Sizes";
 
 describe("Medidas de las paginas",()=>{
@@ -11,4 +12,20 @@ describe("Medidas de las paginas",()=>{
     })
 
     
+})
+
+describe("Posiciones de los elementos",()=>{
+    test("Agregando elementos en un flow en posiciones especificas",()=>{
+        const flow = new Flow({id:"flow1",columns:2,widthFractions:[.5,.5],gap:1,autoDisributeContent:false})
+        
+        new Pages({},[flow])
+        
+        const parrafox = new Paragraph({id:"px",text:"parrafo x ?"})
+        parrafox.addToFlow(flow)
+        const parrafoy = new Paragraph({id:"py",text:"parrafo y ?"})
+        parrafoy.addToFlow(flow,0)
+        //el parrafo x deberia tomar la posicion 1
+        expect(parrafox.position.positionInFlow).toBe(1)
+        expect(parrafoy.position.positionInFlow).toBe(0)
+    })
 })

@@ -29,7 +29,7 @@ export default class Paragraph extends ElementInPage {
         this._fontFamily = options.fontFamily  || "Arial"
         this._fontSize = options.fontSize || "12pt"
         this._fontWeight = options.fontWeight || "normal"
-        this._canvasToMeasure = document.createElement("canvas")
+        this._canvasToMeasure = globalThis.document.createElement("canvas")
         this._spaceLineAfterParagraph = options.spaceLineAfterParagraph || .5
         this._spaceLineBeforeParagraph = options.spaceLineBeforeParagraph || 0
 

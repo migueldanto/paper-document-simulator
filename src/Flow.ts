@@ -82,6 +82,24 @@ export default class Flow {
         }
         this._elements.splice(position, 0, element)
         element.position.positionInFlow = position
+        //hay que asegurarse que los demas elements tambien cambian su position y se posicionan nuevamente, esto porque
+        //los elementos que van despues deberian de cambiar de posicion
+        this.elements.forEach((el,idx)=>{
+            if(idx>position){
+                el.position.positionInFlow = idx
+            }
+        })
+    }
+
+    public moveElementToPosition(element:ElementInPage,newPosition:number){
+        const fromIndex = element.position.positionInFlow
+        //quitando de la posicion inicial (puede ser menor o mayor que la nueve posicion objetivo)
+        this.elements.splice(fromIndex,1)
+        this.elements.splice(newPosition,0,element)
+        //asignar todas las posiciones, para que todo quede en orden
+        this.elements.forEach((element,idx)=>{
+            element.position.positionInFlow = idx
+        })
     }
 
     public clearElements(forcePositionate:boolean = true){

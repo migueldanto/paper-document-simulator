@@ -1,10 +1,12 @@
+import { BehaviorSubject } from "rxjs";
 import Flow from "../Flow";
 
 export default class PositionOfElement {
 
-    public positionInFlow: number = NOT_CALCULATED_VALUE_YET
+    private _positionInFlow: number = NOT_CALCULATED_VALUE_YET
     public fragments: Array<FragmentOfElement> = []
     private _flow: Flow
+    public positionInFlowBahaviorSubject: BehaviorSubject<number> = new BehaviorSubject<number>(NOT_CALCULATED_VALUE_YET)
 
     constructor() {
 
@@ -15,10 +17,21 @@ export default class PositionOfElement {
         return this._flow
     }
 
+    public get positionInFlow():number{
+        return this._positionInFlow
+    }
+
     
 
     public set flow(flow:Flow){
         this._flow = flow
+    }
+
+    public set positionInFlow(position:number){
+        if(position !== this._positionInFlow){
+            this._positionInFlow = position
+            this.positionInFlowBahaviorSubject.next(position)
+        }
     }
 
     public getHeightInPagesAndColumns():Object{

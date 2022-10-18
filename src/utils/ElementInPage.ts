@@ -19,8 +19,11 @@ export default class ElementInPage {
         this._id = options.id
         this._type = options.type
         this._position = new PositionOfElement()
+        this._subscriptions["element_positionInFlow"] = this._position.positionInFlowBahaviorSubject.asObservable()
+            .pipe(debounce(()=>interval(50))).subscribe(indice=>{
+                this.positionate()
+            })
         if (options.flow) {
-            
             this.addToFlow(options.flow)
         }
     }
@@ -192,6 +195,13 @@ export default class ElementInPage {
         return fragment
     }
 
+    /**
+     * Mueve la posicion dentro del flow, es decir si es el cuarto elemento, podriamos pasarlo a ser el primero y asi , et
+     */
+    public movePositionInFlow(newPosition:number){
+        this._flow.moveElementToPosition(this,newPosition)
+    }
+
     public static newColumnToSpaceUsed(spaceUsed:LastSpaceUsed,flow:Flow){
         const _spaceUsed = {...spaceUsed}
         let nextColumn = parseInt(_spaceUsed.last.column) +1
@@ -218,8 +228,10 @@ export default class ElementInPage {
      * Finaliza el elemento y remueve del flujo actual
      */
     public dispose(silent:boolean = false){
+        Object.keys(this._subscriptions).forEach(key=>{
+            this._subscriptions[key].unsubscribe()
+        })
         
-        this._subscriptions["flow_startCoordinate"].unsubscribe()
         this.positionBehaviorSubject.complete()
         //remover el elemento en el flow
         const idx =this.position.positionInFlow
