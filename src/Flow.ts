@@ -71,21 +71,29 @@ export default class Flow {
 
     }
 
-    public addElementInPosition(element: ElementInPage, position?: number) {
-        element.positionBehaviorSubject.asObservable().pipe(debounce(()=>interval(100))).subscribe(position => {
+    public addElementInPosition(element: ElementInPage, indexPosition?: number) {
+        element.positionBehaviorSubject.asObservable().pipe(debounce(()=>interval(50))).subscribe(({position,silent}) => {
             this.positionate()
+            //avisar a otros 
+            if(!silent){
+                this.elements.forEach(el=>{
+                    if(el.position.positionInFlow>position.positionInFlow){
+                        el.positionate()
+                    }
+                })
+            }
         })
-        if (position === undefined || position > this._elements.length) {
+        if (indexPosition === undefined || indexPosition > this._elements.length) {
             this._elements.push(element)
             element.position.positionInFlow = this._elements.length - 1
             return
         }
-        this._elements.splice(position, 0, element)
-        element.position.positionInFlow = position
+        this._elements.splice(indexPosition, 0, element)
+        element.position.positionInFlow = indexPosition
         //hay que asegurarse que los demas elements tambien cambian su position y se posicionan nuevamente, esto porque
         //los elementos que van despues deberian de cambiar de posicion
         this.elements.forEach((el,idx)=>{
-            if(idx>position){
+            if(idx>indexPosition){
                 el.position.positionInFlow = idx
             }
         })

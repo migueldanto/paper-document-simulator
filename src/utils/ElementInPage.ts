@@ -13,7 +13,8 @@ export default class ElementInPage {
     private _subscriptions: {[key:string]:Subscription} = {}
 
     //listeners
-    public positionBehaviorSubject: BehaviorSubject<PositionOfElement> = new BehaviorSubject<PositionOfElement>(this.position)
+    public positionBehaviorSubject: BehaviorSubject<{position:PositionOfElement,silent:boolean}> = 
+        new BehaviorSubject<{position:PositionOfElement,silent:boolean}>({position:this.position,silent:true})
 
     constructor(options: ElementInPageOptions) {
         this._id = options.id
@@ -64,8 +65,14 @@ export default class ElementInPage {
         console.log("No implementado aun")
     }
 
-    public sendPositionateEventToSuscribers():void{
-        this.positionBehaviorSubject.next(this.position)
+    /**
+     * 
+     * @param silent {boolean} indica si debe avisar a elementos hermanos que calculo su posicion
+     * por default es true, regularmente no se necesita avisar a menos que el elemento por dentro haga
+     * procesos un poco mas tardados que calculen su tamaño, por ejemplo hacer un fetch a un servidor
+     */
+    public sendPositionateEventToSuscribers(silent:boolean = true):void{
+        this.positionBehaviorSubject.next({position:this.position,silent:silent})
     }
 
     /**
