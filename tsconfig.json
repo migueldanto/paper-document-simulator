@@ -9,7 +9,7 @@
         "outDir": "./build/paper-document-simulator/",
         //"noEmit": true,
         "strict": false, //en algun momento cambiar esto, deberia haber mejor definicion de tipos
-        "esModuleInterop": false,
+        "esModuleInterop": true,
         "declaration": true,
         "skipLibCheck": true,
         "moduleResolution": "node",
