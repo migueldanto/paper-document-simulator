@@ -72,6 +72,7 @@ export default class Flow {
         const size = this._pagesInstance.flows.length
         this._pagesInstance._addFlowAndSuscribe(this)
         this._position.positionInPage = size
+        this._position.pagesInstance = pages
 
     }
 

@@ -1,6 +1,7 @@
 
 import { BehaviorSubject, debounce } from "rxjs";
 import Pages from "../Pages";
+import { factorCm2Px } from "./Sizes";
 import { CoordinateInPixels } from "./Types";
 
 export default class PositionOfFlow {
@@ -70,7 +71,15 @@ export default class PositionOfFlow {
             acum[current.page] = current.startCoordinate
             return acum
         }, {})
-        return dict[pageIndex] || this._startCoordinate
+        if(!(pageIndex in dict)){
+            dict[pageIndex] = [
+                this._pagesInstance.pageMargins[3] * factorCm2Px, 
+                this._pagesInstance.pageMargins[0] * factorCm2Px
+            ]   
+        }
+         
+
+         return dict[pageIndex]
 
 
     }

@@ -14,7 +14,7 @@ export default class TextInLines{
 
     }
 
-    public measureText(text){
+    public measureText(text:string){
         const ctx = <CanvasRenderingContext2D> this.canvasToMeasure.getContext("2d")
         ctx.font = this.fontOptions || "10pt Arial"
         
