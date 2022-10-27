@@ -31,6 +31,7 @@
     "es-main": "^1.2.0",
     "fs-extra": "^10.1.0",
     "jest": "^29.1.2",
+    "jest-canvas-mock": "^2.4.0",
     "jest-environment-jsdom": "^29.2.0",
     "path": "^0.12.7",
     "shx": "^0.3.4",
