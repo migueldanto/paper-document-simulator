@@ -4,7 +4,7 @@ import { SizePage, Orientation, Size } from "./utils/Types"
 import { BehaviorSubject, debounce, interval, Observable } from "rxjs"
 import { generateParamsSimulatorToView, ParamsSimulatorToView } from "./utils/PagesParametersConstructor"
 
-export default class Pages {
+export default class DocumentSimulator {
 
     public sizePage: SizePage
     public orientation: Orientation
@@ -15,7 +15,7 @@ export default class Pages {
     private _sizePageInPixels: SizePageInPixels
     public flows: Array<Flow> = []
 
-    private _calculatedPositionsBehaviorSubject: BehaviorSubject<Pages> = new BehaviorSubject<Pages>(this)
+    private _calculatedPositionsBehaviorSubject: BehaviorSubject<DocumentSimulator> = new BehaviorSubject<DocumentSimulator>(this)
 
 
 
@@ -63,7 +63,7 @@ export default class Pages {
         return generateParamsSimulatorToView(this)
     }
 
-    public observeCalculatedPosition(): Observable<Pages> {
+    public observeCalculatedPosition(): Observable<DocumentSimulator> {
         this.flows.forEach(flow => {
             flow.positionBehaviorSubject.asObservable().pipe(debounce(() => interval(100))).subscribe((position) => {
                 

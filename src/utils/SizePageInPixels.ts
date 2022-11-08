@@ -1,11 +1,11 @@
-import Pages from "../Pages";
+import DocumentSimulator from "../DocumentSimulator";
 import { factorCm2Px, sizes } from "./Sizes";
 import { Size } from "./Types";
 
 export default class SizePageInPixels{
-    private _pagesInstance:Pages
+    private _pagesInstance:DocumentSimulator
     
-    constructor(pages:Pages){
+    constructor(pages:DocumentSimulator){
         this._pagesInstance = pages
     }
 

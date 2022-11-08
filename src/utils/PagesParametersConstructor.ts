@@ -1,7 +1,7 @@
-import Pages from "../Pages";
+import DocumentSimulator from "../DocumentSimulator";
 import { CoordinateInPixels, Orientation } from "./Types";
 
-export function generateParamsSimulatorToView(pages:Pages):ParamsSimulatorToView{
+export function generateParamsSimulatorToView(pages:DocumentSimulator):ParamsSimulatorToView{
     const params:ParamsSimulatorToView = {
         sizePages:pages.sizePageinPixels,
         orientation:pages.orientation,

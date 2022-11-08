@@ -1,4 +1,4 @@
-import Pages from "./Pages"
+import DocumentSimulator from "./DocumentSimulator"
 import ElementInPage, { CounterSize } from "./utils/ElementInPage"
 import PositionOfFlow, { FragmentOfFlow } from "./utils/PositionOfFlow"
 import { factorCm2Px } from "./utils/Sizes"
@@ -8,7 +8,7 @@ import logger from "./utils/Logger"
 
 export default class Flow {
     private _id: string
-    private _pagesInstance: Pages
+    private _pagesInstance: DocumentSimulator
     private _elements: Array<ElementInPage> = []
     private _position: PositionOfFlow
 
@@ -43,7 +43,7 @@ export default class Flow {
         return this._elements
     }
 
-    public get pagesInstance(): Pages {
+    public get pagesInstance(): DocumentSimulator {
         return this._pagesInstance
     }
 
@@ -67,7 +67,7 @@ export default class Flow {
     }
 
 
-    public addToPagesInstance(pages: Pages) {
+    public addToPagesInstance(pages: DocumentSimulator) {
         this._pagesInstance = pages
         const size = this._pagesInstance.flows.length
         this._pagesInstance._addFlowAndSuscribe(this)

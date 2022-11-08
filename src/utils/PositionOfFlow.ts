@@ -1,6 +1,6 @@
 
 import { BehaviorSubject, debounce } from "rxjs";
-import Pages from "../Pages";
+import DocumentSimulator from "../DocumentSimulator";
 import { factorCm2Px } from "./Sizes";
 import { CoordinateInPixels } from "./Types";
 
@@ -11,7 +11,7 @@ export default class PositionOfFlow {
     private _startCoordinate: [number, number] = [0, 0]
     private _id: string
 
-    private _pagesInstance: Pages
+    private _pagesInstance: DocumentSimulator
 
     public startCoordinateBehaviorSubject: BehaviorSubject<ChangeStartCoordinatePositionOfFlow>
         = new BehaviorSubject<ChangeStartCoordinatePositionOfFlow>({ value: this.startCoordinate })
@@ -42,11 +42,11 @@ export default class PositionOfFlow {
         return this._startCoordinate
     }
 
-    public get pagesInstance(): Pages {
+    public get pagesInstance(): DocumentSimulator {
         return this._pagesInstance
     }
 
-    public set pagesInstance(pages: Pages) {
+    public set pagesInstance(pages: DocumentSimulator) {
         this._pagesInstance = pages
     }
 

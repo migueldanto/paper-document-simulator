@@ -1,5 +1,5 @@
-import Pages from "./Pages";
+import DocumentSimulator from "./DocumentSimulator";
 import Flow from "./Flow"
 
 
-export {Pages,Flow}
+export {DocumentSimulator,Flow}
