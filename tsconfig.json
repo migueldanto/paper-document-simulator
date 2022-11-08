@@ -5,12 +5,12 @@
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
-        "sourceMap": true,
+        "sourceMap": false,
         "outDir": "./build/paper-document-simulator/",
         //"noEmit": true,
         "strict": false, //en algun momento cambiar esto, deberia haber mejor definicion de tipos
         "esModuleInterop": true,
-        "declaration": true,
+        "declaration": false,
         "skipLibCheck": true,
         "moduleResolution": "node",
         "importHelpers": false
