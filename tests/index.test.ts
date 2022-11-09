@@ -1,4 +1,4 @@
-import {Flow, Pages} from "../src/index";
+import {Flow, DocumentSimulator as Pages} from "../src/index";
 import {Paragraph} from "../src/elements"
 import { factorCm2Px } from "../src/utils/Sizes";
 
