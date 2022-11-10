@@ -1,0 +1,45 @@
+body,html{
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.panels{
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 100vh;
+}
+
+.panels .panel-params{
+    background-color: rgb(245, 245, 245);
+}
+
+.panels .panel-preview{
+    
+}
+
+
+.object-add-panel{
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.object-add-panel .field{
+    padding-top: 5px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+}
+
+.object-add-panel .field input,
+.object-add-panel .field textarea,
+.object-add-panel .field select{
+    flex-grow: 2;
+}
+
+.object-add-panel .field button{
+    flex-grow: 1;
+}

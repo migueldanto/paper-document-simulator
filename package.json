@@ -12,7 +12,8 @@
     "build": "npm run transpile-ts2js && npm run prepare-package",
     "transpile-ts2js": " shx rm -rf build/paper-document-simulator/* && tsc",
     "prepare-package": "node tasks/prepare-package.js",
-    "test": "jest"
+    "test": "jest",
+    "serve-examples": "vite -c examples/vite.config.js"
   },
   "keywords": [
     "document",
@@ -37,6 +38,7 @@
     "path": "^0.12.7",
     "shx": "^0.3.4",
     "ts-jest": "^29.0.3",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "vite": "^3.2.3"
   }
 }

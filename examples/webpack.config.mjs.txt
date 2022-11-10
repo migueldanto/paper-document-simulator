@@ -1,0 +1,45 @@
+import path, { dirname } from "path"
+import HtmlWebpackPugin from "html-webpack-plugin"
+import { fileURLToPath } from 'url';
+import fs from "fs"
+
+const src = path.join(dirname(fileURLToPath(import.meta.url)), '../examples');
+
+export default {
+    entry: () => {
+        const entradas = {};
+        fs.readdirSync(src)
+            .filter(name => name !== "webpack.config.mjs" && name !== "dist")
+            .forEach(entry => {
+                entradas[entry] = `${src}/${entry}/index.js`
+            })
+        return entradas
+    },
+    //target: ['browserlist'],
+    output: {
+        filename: "[name].js",
+        path: path.resolve(src, "dist"),
+        libraryTarget:"umd",
+        module:true
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/i,
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/preset-env'],
+                    plugins: ["@babel/plugin-syntax-dynamic-import"]
+
+                }
+            }
+        ]
+    },
+    resolve: {
+        extensions: [".js"]
+    },
+    experiments:{
+        outputModule :true
+    }
+}
