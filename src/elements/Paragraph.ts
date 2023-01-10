@@ -135,7 +135,7 @@ export default class Paragraph extends ElementInPage {
         }
 
 
-        this.sendPositionateEventToSuscribers()
+        this.sendPositionateEventToSuscribers(false)
     }
 
     private tryDistributeNextSpace(
